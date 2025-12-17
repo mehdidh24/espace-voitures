@@ -1,0 +1,168 @@
+{
+  "produits": [
+    {
+      "id": "produit01",
+      "name": "Alfa Romeo Giulia",
+      "description": "Voiture sportive italienne avec design élégant",
+      "price": 35000,
+      "currency": "€",
+      "stock": 2,
+      "category": "Sport",
+      "images": [
+        "assets/images/alfa-romeo.jpg"
+      ]
+    },
+    {
+      "id": "produit02",
+      "name": "Turbo R 2 124",
+      "description": "Voiture classique performante avec moteur turbo",
+      "price": 27999.99,
+      "currency": "€",
+      "stock": 1,
+      "category": "Classique",
+      "images": [
+        "assets/images/Turbo-R-2.jpg.webp"
+      ]
+    },
+    {
+      "id": "produit03",
+      "name": "Sskretoav",
+      "description": "Modèle rare et exotique pour collectionneurs",
+      "price": 95000,
+      "currency": "€",
+      "stock": 1,
+      "category": "Exotic",
+      "images": [
+        "assets/images/Sskretroav.jpg"
+      ]
+    },
+    {
+      "id": "produit04",
+      "name": "Ford Model T 1919",
+      "description": "Voiture historique américaine ayant marqué l'industrie automobile",
+      "price": 18000,
+      "currency": "€",
+      "stock": 4,
+      "category": "Vintage",
+      "images": [
+        "assets/images/1919_Ford_Model_T.jpg"
+      ]
+    },
+    {
+      "id": "produit05",
+      "name": "Aston Martin DB5",
+      "description": "Voiture de luxe britannique emblématique",
+      "price": 75000,
+      "currency": "€",
+      "stock": 2,
+      "category": "Luxury",
+      "images": [
+        "assets/images/Aston_Martin_DB5.jpg"
+      ]
+    },
+    {
+      "id": "produit06",
+      "name": "1955 Mercedes-Benz 300SL",
+      "description": "Voiture de sport classique avec portes papillon",
+      "price": 120000,
+      "currency": "€",
+      "stock": 1,
+      "category": "Classic",
+      "images": [
+        "assets/images/1955_Mercedes-Benz_300SL.jpg"
+      ]
+    },
+    {
+      "id": "produit07",
+      "name": "Rolls Roys",
+      "description": "Ancienne voiture classique de Rolls Royce",
+      "price": 152400,
+      "currency": "€",
+      "stock": 0,
+      "category": "Luxury",
+      "images": [
+        "assets/images/eautomobile_Rolls_Royce.jpg"
+      ]
+    },
+    {
+      "id": "produit11",
+      "name": "1967 Camaro SS",
+      "description": "Muscle car américaine classique avec un moteur puissant",
+      "price": 45000,
+      "currency": "€",
+      "stock": 2,
+      "category": "Classic",
+      "images": [
+        "assets/images/1967_camaro_ss_01.jpg"
+      ]
+    },
+    {
+      "id": "produit09",
+      "name": "Jaguar E-Type",
+      "description": "Voiture de luxe française extrêmement rare",
+      "price": 3000000,
+      "currency": "€",
+      "stock": 1,
+      "category": "Luxury",
+      "images": [
+        "assets/images/jaguar.jpg"
+      ]
+    },
+    {
+      "id": "produit52",
+      "name": "TOYOTA_2000GT",
+      "description": "voiture luxe  sport japonaise en évolution",
+      "price": 70000,
+      "currency": "€",
+      "stock": 5,
+      "category": "Sport",
+      "images": [
+        "assets/images/TOYOTA_2000GT.jpg"
+      ]
+    },
+    {
+      "id": "produit25",
+      "name": "Studebaker",
+      "description": "voiture familiale avec qualité et design spécial ",
+      "price": 25000,
+      "currency": "€",
+      "stock": 4,
+      "category": "Exotic",
+      "images": [
+        "assets/images/Studebaker_Avanti_Classic-Gala_2021_1X7A0065.jpg"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "1",
+      "name": "Sport",
+      "description": "Voitures sportives haute performance"
+    },
+    {
+      "id": "2",
+      "name": "Classique",
+      "description": "Modèles classiques anciens et restaurés"
+    },
+    {
+      "id": "3",
+      "name": "Classic",
+      "description": "Classics haut de gamme"
+    },
+    {
+      "id": "4",
+      "name": "Vintage",
+      "description": "Voitures historiques et vintages"
+    },
+    {
+      "id": "5",
+      "name": "Luxury",
+      "description": "Voitures de luxe premium"
+    },
+    {
+      "id": "6",
+      "name": "Exotic",
+      "description": "Modèles rares et exotiques"
+    }
+  ]
+}

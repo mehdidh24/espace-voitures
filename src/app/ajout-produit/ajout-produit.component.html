@@ -1,0 +1,93 @@
+<div class="container mt-4">
+  <h2>➕ Ajouter Produit</h2>
+  
+  <form #form="ngForm" (ngSubmit)="ajouterProduit()">
+      <div class="col-md-6">
+        <label>ID *</label>
+        <input [(ngModel)]="produit.id" 
+               name="id" 
+               type="text" 
+               class="form-control" 
+               required>
+        
+      </div>
+      <div class="col-md-6">
+        <label>Nom *</label>
+        <input [(ngModel)]="produit.name" 
+               name="name" 
+               class="form-control" 
+               required>
+      </div>
+      <div class="col-md-6">
+        <label>Catégorie *</label>
+        <select [(ngModel)]="produit.category" 
+                name="category" 
+                class="form-control" 
+                required>
+          <option value="">Sélectionner...</option>
+          <option *ngFor="let cat of categories" [value]="cat.name">
+            {{ cat.name }}
+          </option>
+        </select>
+      </div>
+    
+
+    
+      <div class="col-md-4">
+        <label>Prix</label>
+        <input [(ngModel)]="produit.price" 
+               name="price" 
+               type="number" 
+               class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label>Stock</label>
+        <input [(ngModel)]="produit.stock" 
+               name="stock" 
+               type="number" 
+               class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label>Devise</label>
+        <input [(ngModel)]="produit.currency" 
+               name="currency" 
+               class="form-control" 
+               value="€">
+      </div>
+    
+
+    
+      <div class="col-md-6">
+        <label>Description</label>
+        <textarea [(ngModel)]="produit.description" 
+                  name="description" 
+                  class="form-control" 
+                  rows="3"></textarea>
+      </div>
+      <div class="col-md-6">
+        <label>Image</label>
+        <input [(ngModel)]="produit.images[0]" 
+               name="image" 
+               class="form-control mb-2" 
+               >
+        <input type="file" 
+               (change)="onFileSelected($event)" 
+               accept="image/*" 
+               class="form-control">
+      </div>
+    
+
+    <div class="mt-4">
+      <button type="submit" 
+              class="btn btn-success btn-lg me-2"
+              [disabled]="!form.valid">
+        💾 Ajouter Produit
+      </button>
+      <button type="button" 
+              class="btn btn-secondary btn-lg" 
+              (click)="resetForm()">
+        🔄 Réinitialiser
+      </button>
+    </div>
+  </form>
+</div>
