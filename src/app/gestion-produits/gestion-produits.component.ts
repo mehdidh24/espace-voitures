@@ -1,44 +1,58 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
-import { ApiService } from '../shared/api.service';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../shared/api.service';
 import { Produit } from '../shared/produit.modal';
 import { Category } from '../shared/category.modal';
-import Swal from 'sweetalert2'
-
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-gestion-produits',
   templateUrl: './gestion-produits.component.html',
   styleUrls: ['./gestion-produits.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, CommonModule]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class GestionProduitsComponent implements OnInit {
+
   formValue!: FormGroup;
+
+  // Liste brute reçue de l’API
   produitsData: Produit[] = [];
+
+  // Liste paginée réellement affichée dans le tableau
   paginatedProduits: Produit[] = [];
+
   categories: Category[] = [];
   selectedProduit: Produit | null = null;
-  imagePreview: string = '';
-  imageFileName: string = '';
-  
+
+  imagePreview = '';
+  imageFileName = '';
+
+  // Pagination / recherche
   currentPage = 1;
   itemsPerPage = 7;
   totalFilteredItems = 0;
   searchTerm = '';
+
+  // Édition
   isEditing = false;
+
+  // Panier
+  cartItems: (Produit & { quantity: number })[] = [];
+  cartTotal = 0;
 
   @ViewChild('formulaireRef', { static: false }) formulaireRef!: ElementRef;
 
   constructor(private fb: FormBuilder, private api: ApiService) {}
 
   ngOnInit(): void {
-    console.log('GestionProduits ngOnInit');
     this.initForm();
     this.loadCategories();
     this.getAllProduits();
   }
+
+  // ================== FORMULAIRE ==================
 
   initForm() {
     this.formValue = this.fb.group({
@@ -54,7 +68,6 @@ export class GestionProduitsComponent implements OnInit {
 
   loadCategories() {
     this.api.getCategories().subscribe(res => {
-      console.log('Categories:', res);
       this.categories = res;
     });
   }
@@ -62,13 +75,13 @@ export class GestionProduitsComponent implements OnInit {
   getAllProduits() {
     this.api.getAllProduits().subscribe({
       next: (res) => {
-        console.log('Produits:', res.length);
         this.produitsData = res;
         this.applyFilterAndPagination();
-      },
-      error: (err) => console.error('Erreur API:', err)
+      }
     });
   }
+
+  // ================== FILTRE + PAGINATION ==================
 
   filterProduits() {
     this.currentPage = 1;
@@ -77,15 +90,16 @@ export class GestionProduitsComponent implements OnInit {
 
   applyFilterAndPagination() {
     let filtered = [...this.produitsData];
-    
+
     if (this.searchTerm.trim()) {
-      filtered = filtered.filter(produit =>
-        produit.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        produit.description?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        produit.category?.toLowerCase().includes(this.searchTerm.toLowerCase())
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.name?.toLowerCase().includes(term) ||
+        p.description?.toLowerCase().includes(term) ||
+        p.category?.toLowerCase().includes(term)
       );
     }
-    
+
     this.totalFilteredItems = filtered.length;
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     this.paginatedProduits = filtered.slice(startIndex, startIndex + this.itemsPerPage);
@@ -113,68 +127,65 @@ export class GestionProduitsComponent implements OnInit {
     return Math.ceil(this.totalFilteredItems / this.itemsPerPage);
   }
 
+  // ================== EDITION PRODUIT ==================
+
   onEdit(produit: Produit) {
     this.isEditing = true;
     this.selectedProduit = { ...produit };
-    
+
     this.formValue.patchValue({
-      name: produit.name || '',
-      description: produit.description || '',
-      price: produit.price || 0,
-      currency: produit.currency || '€',
-      stock: produit.stock || 0,
-      category: produit.category || '',
+      name: produit.name,
+      description: produit.description,
+      price: produit.price,
+      currency: produit.currency,
+      stock: produit.stock,
+      category: produit.category,
       images: produit.images?.[0] || ''
     });
+
     this.imagePreview = produit.images?.[0] || '';
-    this.imageFileName = this.getImageName(produit.images?.[0] || '');
-    
+    this.imageFileName = produit.images?.[0]?.split('/').pop() || '';
+
     setTimeout(() => this.scrollToFormulaire(), 100);
   }
 
   scrollToFormulaire() {
-    if (this.formulaireRef) {
-      this.formulaireRef.nativeElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
-    }
+    this.formulaireRef?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   cancelEdit() {
     this.isEditing = false;
     this.selectedProduit = null;
-    this.formValue.reset();
-    this.formValue.patchValue({ currency: '€' });
+    this.formValue.reset({ currency: '€' });
     this.imagePreview = '';
     this.imageFileName = '';
   }
 
+  // ================== CRUD PRODUITS ==================
+
   ajouterProduit() {
     if (this.formValue.invalid) {
-      this.formValue.markAllAsTouched();
       Swal.fire('Erreur', 'Remplissez tous les champs', 'error');
       return;
     }
 
-    const data = {
+    const data: Produit = {
       id: `produit${Date.now()}`,
       name: this.formValue.value.name,
       description: this.formValue.value.description,
       price: parseFloat(this.formValue.value.price),
       currency: this.formValue.value.currency,
-      stock: parseInt(this.formValue.value.stock),
+      stock: parseInt(this.formValue.value.stock, 10),
       category: this.formValue.value.category,
       images: [this.formValue.value.images || 'assets/images/default.jpg']
     };
 
     this.api.postProduit(data).subscribe({
       next: () => {
-        Swal.fire('✅ Ajouté', 'Nouveau produit créé !', 'success');
+        Swal.fire('✅ Ajouté', 'Produit créé !', 'success');
         this.getAllProduits();
         this.cancelEdit();
-      },
-      error: (err) => Swal.fire('❌ Erreur', `HTTP ${err.status}`, 'error')
+      }
     });
   }
 
@@ -184,25 +195,22 @@ export class GestionProduitsComponent implements OnInit {
       return;
     }
 
-    const id = String(this.selectedProduit.id);
-    const data = {
-      id: id,
+    const data: Produit = {
+      ...this.selectedProduit,
       name: this.formValue.value.name,
       description: this.formValue.value.description,
       price: parseFloat(this.formValue.value.price),
-      currency: this.formValue.value.currency,
-      stock: parseInt(this.formValue.value.stock),
+      stock: parseInt(this.formValue.value.stock, 10),
       category: this.formValue.value.category,
-      images: [this.formValue.value.images || '']
+      images: [this.formValue.value.images || 'assets/images/default.jpg']
     };
 
-    this.api.updateProduit(id, data).subscribe({
+    this.api.updateProduit(this.selectedProduit.id, data).subscribe({
       next: () => {
         Swal.fire('✅ Mis à jour', 'Produit modifié !', 'success');
         this.getAllProduits();
         this.cancelEdit();
-      },
-      error: (err) => Swal.fire('❌ Erreur', `HTTP ${err.status}`, 'error')
+      }
     });
   }
 
@@ -211,19 +219,20 @@ export class GestionProduitsComponent implements OnInit {
       title: `Supprimer ${produit.name} ?`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Oui, supprimer',
+      confirmButtonText: 'Oui',
       cancelButtonText: 'Annuler'
     }).then(result => {
       if (result.isConfirmed) {
-        this.api.deleteProduit(produit.id).subscribe({
-          next: () => {
-            Swal.fire('Supprimé !', 'Produit supprimé', 'success');
-            this.getAllProduits();
-          }
+        this.api.deleteProduit(produit.id).subscribe(() => {
+          this.produitsData = this.produitsData.filter(p => p.id !== produit.id);
+          this.applyFilterAndPagination();
+          Swal.fire('Supprimé', 'Produit supprimé.', 'success');
         });
       }
     });
   }
+
+  // ================== IMAGES ==================
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
@@ -232,8 +241,8 @@ export class GestionProduitsComponent implements OnInit {
       reader.onload = (e: any) => {
         this.imagePreview = e.target.result;
         const fileName = file.name.toLowerCase().replace(/\s+/g, '-');
-        const assetPath = `assets/images/${fileName}`;
-        this.formValue.patchValue({ images: assetPath });
+        const path = `assets/images/${fileName}`;
+        this.formValue.patchValue({ images: path });
         this.imageFileName = fileName;
       };
       reader.readAsDataURL(file);
@@ -241,29 +250,69 @@ export class GestionProduitsComponent implements OnInit {
   }
 
   onImageUrlChanged() {
-    let path = this.formValue.get('images')?.value?.trim();
-    
-    if (path) {
-      if (path.startsWith('http://') || path.startsWith('https://')) {
-        this.imagePreview = path;
-        this.imageFileName = 'Lien externe';
-      } else if (!path.startsWith('assets/')) {
-        path = `assets/images/${path}`;
-        this.imagePreview = path;
-        this.imageFileName = path.split('/').pop() || '';
-      } else {
-        this.imagePreview = path;
-        this.imageFileName = path.split('/').pop() || '';
-      }
-      this.formValue.patchValue({ images: path });
+    let path = this.formValue.get('images')?.value?.trim() || '';
+    if (path && !path.startsWith('http') && !path.startsWith('assets/')) {
+      path = `assets/images/${path}`;
     }
-  }
-
-  getImageName(fullPath: string): string {
-    return fullPath.split('/').pop() || '';
+    this.imagePreview = path;
+    this.imageFileName = path.split('/').pop() || '';
+    this.formValue.patchValue({ images: path });
   }
 
   onImageError(event: any) {
     event.target.src = 'assets/images/default.jpg';
+  }
+
+  // ================== PANIER & STOCK ==================
+
+  addToCart(produit: Produit) {
+    const original = this.produitsData.find(p => p.id === produit.id);
+    if (!original) { return; }
+
+    if (original.stock <= 0) {
+      Swal.fire('Stock insuffisant', `Le produit ${original.name} est en rupture de stock.`, 'warning');
+      return;
+    }
+
+    const existInCart = this.cartItems.find(p => p.id === produit.id);
+    if (existInCart) {
+      existInCart.quantity += 1;
+    } else {
+      this.cartItems.push({ ...original, quantity: 1 });
+    }
+
+    original.stock--;
+    this.applyFilterAndPagination();
+    this.updateCartTotal();
+  }
+
+  removeFromCart(id: string) {
+    const index = this.cartItems.findIndex(p => p.id === id);
+    if (index > -1) {
+      const produitPanier = this.cartItems[index];
+      const original = this.produitsData.find(p => p.id === produitPanier.id);
+      if (original) {
+        original.stock += produitPanier.quantity;
+      }
+      this.cartItems.splice(index, 1);
+      this.applyFilterAndPagination();
+      this.updateCartTotal();
+    }
+  }
+
+  clearCart() {
+    this.cartItems.forEach(item => {
+      const original = this.produitsData.find(p => p.id === item.id);
+      if (original) {
+        original.stock += item.quantity;
+      }
+    });
+    this.cartItems = [];
+    this.applyFilterAndPagination();
+    this.updateCartTotal();
+  }
+
+  updateCartTotal() {
+    this.cartTotal = this.cartItems.reduce((sum, p) => sum + (p.price * p.quantity), 0);
   }
 }

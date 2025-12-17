@@ -1,11 +1,9 @@
+<!-- Header / Navbar -->
 <header>
   <nav class="navbar navbar-expand-lg navbar-dark bg-black">
     <div class="container-fluid">
       <a class="navbar-brand" routerLink="/">Espace Voitures</a>
-
-      
-      <button class="navbar-toggler"
-              type="button"
+      <button class="navbar-toggler" type="button"
               data-bs-toggle="collapse"
               data-bs-target="#navbarNav"
               aria-controls="navbarNav"
@@ -17,70 +15,48 @@
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
         <ul class="navbar-nav mb-2 mb-lg-0 gap-3">
           <li class="nav-item">
-            <a class="nav-link"
-               routerLink="/"
-               routerLinkActive="active"
-               [routerLinkActiveOptions]="{ exact: true }">
+            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
               Accueil
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link"
-               routerLink="/gestion-produits"
-               routerLinkActive="active">
-               Gestions Produits
+            <a class="nav-link" routerLink="/gestion-produits" routerLinkActive="active">
+              Gestion Produits
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link"
-               routerLink="/ajout-produit"
-               routerLinkActive="active">
-               Ajouter Produits
+            <a class="nav-link" routerLink="/ajout-produit" routerLinkActive="active">
+              Ajouter Produit
             </a>
           </li>
         </ul>
 
-        
         <form *ngIf="isAccueil()" class="d-flex ms-3">
-          <input type="text"
-                 class="form-control me-2"
-                 placeholder="Recherche produits..."
-                 [(ngModel)]="searchTerm"
-                 (input)="filterProduits()"
-                 name="search">
+          <input type="text" class="form-control me-2" placeholder="Recherche produits..."
+                 [(ngModel)]="searchTerm" (input)="filterProduits()" name="search">
 
-          
-          <select class="form-select ms-2"
-                  [(ngModel)]="selectedCategory"
-                  (change)="filterProduits()"
-                  name="category">
+          <select class="form-select ms-2" [(ngModel)]="selectedCategory" (change)="filterProduits()" name="category">
             <option value="">Toutes catégories</option>
             <option *ngFor="let c of categories" [value]="c.name">{{ c.name }}</option>
           </select>
-
-        
         </form>
       </div>
     </div>
   </nav>
 </header>
 
-
+<!-- Présentation -->
 <div *ngIf="isAccueil()" id="Présentation" class="bg-light py-4 mb-4">
-  <div class="container d-flex justify-content-between align-items-center">
-    <div>
-      <h3>Bienvenue dans l’espace voitures</h3>
-      <p class="mb-0">Découvrez les derniers modèles disponibles dans notre boutique en ligne.</p>
-    </div>
-    
-
+  <div class="container">
+    <h3>Bienvenue dans l’espace voitures</h3>
+    <p class="mb-0">Découvrez les derniers modèles disponibles dans notre boutique en ligne.</p>
   </div>
 </div>
 
-
+<!-- Conteneur principal -->
 <div class="container mt-4" *ngIf="isAccueil()">
 
-  
+  <!-- Détails produit -->
   <div class="card mb-4" *ngIf="produitSelectionne" id="detailsProduit">
     <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
       <span>Détails du produit</span>
@@ -95,15 +71,14 @@
       <p><strong>Prix :</strong> {{ produitSelectionne.price }} {{ produitSelectionne.currency }}</p>
       <p><strong>Stock :</strong> {{ produitSelectionne.stock }}</p>
       <p><strong>Catégorie :</strong> {{ produitSelectionne.category }}</p>
-
       <img *ngIf="produitSelectionne.images?.length"
            [src]="produitSelectionne.images[0]"
-           width="150"
-           class="rounded border mt-2">
+           width="150" class="rounded border mt-2"
+           (error)="onImageError($event)">
     </div>
   </div>
 
-  
+  <!-- Liste des produits -->
   <div class="row">
     <div class="col-md-4 mb-3" *ngFor="let produit of filteredProduits">
       <div class="card shadow-sm h-100">
@@ -111,16 +86,18 @@
              [src]="produit.images[0]"
              class="card-img-top"
              style="height:200px; object-fit:cover;"
-             alt="{{ produit.name }}">
+             alt="{{ produit.name }}"
+             (error)="onImageError($event)">
 
         <div class="card-body d-flex flex-column">
           <h5>{{ produit.name }}</h5>
           <p>{{ produit.description }}</p>
           <p><strong>{{ produit.price }} {{ produit.currency }}</strong></p>
+          
 
-          <button class="btn btn-dark mt-auto"
-                  (click)="voirDetails(produit)">
-            Voir détails
+          <button class="btn btn-dark mt-auto" (click)="voirDetails(produit)">Voir détails</button>
+          <button class="btn btn-success mt-2" (click)="addToCart(produit)">
+            🛒 Ajouter au panier
           </button>
         </div>
       </div>
@@ -129,11 +106,54 @@
 
 </div>
 
+<!-- Panier flottant en bulles -->
+<div class="position-fixed" style="bottom:20px; right:20px; z-index:1050;">
+  <button class="btn btn-success rounded-circle position-relative"
+          style="width:60px; height:60px; font-size:24px;"
+          (click)="showCart = !showCart">
+    🛒
+    <span *ngIf="cartItems.length > 0"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+      {{ cartCount }}
+    </span>
+  </button>
+
+  <div *ngIf="showCart" class="card shadow-lg mt-2" style="width:300px;">
+    <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
+      🛒 Panier ({{ cartCount }})
+      <button class="btn btn-sm btn-outline-light" (click)="clearCart()">Vider</button>
+    </div>
+
+    <div class="card-body p-2" *ngIf="cartItems.length > 0">
+      <table class="table table-sm mb-0">
+        <tbody>
+          <tr *ngFor="let item of cartItems">
+            <td>{{ item.name }}</td>
+            <td>x{{ item.quantity }}</td>
+            <td>{{ (item.price * item.quantity) | number:'1.2-2' }} {{ item.currency }}</td>
+            <td>
+              <button class="btn btn-sm btn-danger" (click)="removeFromCart(item)">❌</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="text-end mt-2 fw-bold">
+        Total: {{ cartTotal | number:'1.2-2' }} TND
+      </div>
+    </div>
+
+    <div *ngIf="cartItems.length === 0" class="text-center text-muted p-2">
+      Panier vide
+    </div>
+  </div>
+</div>
+
+<!-- Router Outlet -->
 <router-outlet></router-outlet>
 
+<!-- Footer -->
 <footer class="bg-black text-white text-center py-3 footer-fixed">
   <div class="container">
     <p class="mb-0">&copy; 2025 Espace Voitures. Tous droits réservés.</p>
   </div>
 </footer>
-
