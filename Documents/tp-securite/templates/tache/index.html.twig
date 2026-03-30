@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des tâches{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>✅ Liste des tâches</h1>
+        <a href="{{ path('app_tache_ajouter') }}" class="btn btn-primary">
+            ➕ Ajouter une tâche
+        </a>
+    </div>
+
+    {% if taches is empty %}
+        <div class="alert alert-info text-center py-5">
+            <p class="mb-0">Aucune tâche pour le moment. <a href="{{ path('app_tache_ajouter') }}" class="alert-link">Ajouter une tâche</a></p>
+        </div>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mt-4">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Date de création</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tache in taches %}
+                        <tr>
+                            <td class="text-center">{{ tache.id }}</td>
+                            <td {% if tache.terminee %}style="text-decoration: line-through;" class="text-muted"{% endif %}>
+                                {{ tache.titre }}
+                            </td>
+                            <td>{{ tache.dateCreation|date('d/m/Y H:i') }}</td>
+                            <td class="text-center">
+                                {% if tache.terminee %}
+                                    <span class="badge bg-success">✅ Terminée</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">⏳ En cours</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ path('app_tache_detail', {id: tache.id}) }}" class="btn btn-outline-primary btn-sm">
+                                    👁️ Voir
+                                </a>
+                                {% if not tache.terminee %}
+                                    <a href="{{ path('app_tache_terminer', {id: tache.id}) }}" class="btn btn-outline-success btn-sm">
+                                        ✅ Terminer
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="mt-3 text-muted">
+            {{ taches|length }} tâche(s) au total
+        </p>
+    {% endif %}
+{% endblock %}

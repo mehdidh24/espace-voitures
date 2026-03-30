@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <h1>👋 Bienvenue sur notre application Symfony !</h1>
+    <p>Ceci est votre première application construite avec le framework <strong>Symfony 7.4</strong>.</p>
+    <p>Date actuelle : {{ "now"|date("d/m/Y H:i") }}</p>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📰 Articles</h5>
+                    <p class="card-text text-muted">Gérer les articles du blog</p>
+                    <a href="{{ path('app_articles') }}" class="btn btn-primary">Voir les articles</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📂 Catégories</h5>
+                    <p class="card-text text-muted">Organiser par catégories</p>
+                    <a href="{{ path('app_categories') }}" class="btn btn-primary">Voir les catégories</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">✅ Tâches</h5>
+                    <p class="card-text text-muted">Gérer la liste des tâches</p>
+                    <a href="{{ path('app_taches') }}" class="btn btn-primary">Voir les tâches</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
